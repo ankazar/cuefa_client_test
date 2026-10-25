@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VK Bridge Example</title>
+    <!-- Подключение VK Bridge через CDN [citation:2] -->
+    <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+</head>
+<body>
+    <h1>Информация о пользователе</h1>
+    <div id="user-info">Загрузка...</div>
+
+    <script>
+        // ВАЖНО: при подключении через script-тег используется объект vkBridge, а не bridge [citation:2]
+        const userInfoDiv = document.getElementById('user-info');
+
+        // 1. Инициализация приложения (обязательный шаг) [citation:2][citation:6]
+        vkBridge.send('VKWebAppInit')
+            .then((data) => {
+                if (data.result) {
+                    console.log('Приложение инициализировано');
+                    // 2. Запрос информации о пользователе [citation:1]
+                    return vkBridge.send('VKWebAppGetUserInfo');
+                } else {
+                    throw new Error('Ошибка инициализации');
+                }
+            })
+            .then((user) => {
+                // 3. Вывод имени и фамилии в body [citation:1]
+                console.log('Данные пользователя:', user);
+                userInfoDiv.textContent = `Привет, ${user.first_name} ${user.last_name}!`;
+            })
+            .catch((error) => {
+                console.error('Ошибка VK Bridge:', error);
+                userInfoDiv.textContent = 'Не удалось получить данные. Убедитесь, что приложение открыто внутри VK.';
+            });
+    </script>
+</body>
+</html>
